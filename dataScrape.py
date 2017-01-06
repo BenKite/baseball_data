@@ -8,7 +8,7 @@ import re
 def finder (team, year):
     url = "http://www.baseball-reference.com/teams/" + team + "/" + str(year) + "-schedule-scores.shtml"
     res = requests.get(url)
-    soup = bs4.BeautifulSoup(res.text)
+    soup = bs4.BeautifulSoup(res.text, "lxml")
     tables = soup.findAll('table', id = "team_schedule")
     data_rows = tables[0].findAll('tr')  
     game_data = [[td.getText() for td in data_rows[i].findAll('td')]
