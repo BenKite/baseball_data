@@ -1,10 +1,29 @@
-## Ben Kite
-## 2016-04-22
+#!/usr/bin/env python3
 
-import pandas, os
+## Ben Kite
+## 2017-01-05
+
+"""
+Finds all game played in the year that you specify and saves
+their results in a single .csv file.
+
+For example the follow command will collect data from all 2016 games and save it in a .csv file in baseballScores/:
+
+$ gameData.py --year 2016 datdir baseballScores/
+
+"""
+
+import pandas, os, argparse
 from dataScrape import finder
 
-import pymysql.cursors
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("--year", help="Year of games to be collected. Eventually I'll allow multiple years (e.g., 2010-2012 or 2010 2012 2013, etc.)")
+parser.add_argument("--datdir", help="Name of directory where the data should be stored.  If the directory does not exist it will be created. Defaults to data/", default = "data/")
+
+args = parser.parse_args()
+
+year  = str(args.year)
+directory = str(args.datdir)
 
 def YearData(year, directory):
     year = str(year)
@@ -54,18 +73,8 @@ def YearData(year, directory):
     homeData.to_csv(outfile, index = False, encoding = "utf-8")
     return(homeData)
 
-## Now the function is defined
-## Create a directory to catch the data files and fill it up
+## Now the function is defined, use it
 
-directory = "data/"
-
-if not os.path.exists(directory):
-    os.makedirs(directory)
-
-## Now pull years
-years = (2015, 2016)
-datdic = dict()
-for y in years:
-    datdic[y] = (YearData(y, directory))
+YearData(year, directory)
 
 
