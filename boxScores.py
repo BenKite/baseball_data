@@ -11,7 +11,7 @@ The teams are indicated by providing one of the following abreviations:
  'KCR', 'HOU', 'LAA', 'LAD', 'MIA', 'MIL', 'MIN', 'NYM', 'NYY', 'OAK', 
  'PHI', 'PIT', 'SDP', 'SEA', 'SFG', 'STL', 'TBR', 'TEX', 'TOR', 'WSN']
 
-This can take up to six minutes to run for a single team!
+This can take up to six minutes to run for a single team!  I'm going to work toward this having an update option so that data can be scraped during the course of a season and quickly added to a .csv file. 
 
 Running the following would give you all boxscores for the Yankees in 2010:
 
@@ -24,8 +24,8 @@ from dataScrape import finder
 import requests, bs4, re
 
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument("--team", help="Team you want to boxscores for.")
-parser.add_argument("--year", help="Year of games to be collected. Eventually I'll allow multiple years (e.g., 2010-2012 or 2010 2012 2013, etc.)")
+parser.add_argument("--team", help="Name of team from which you want to collect data.")
+parser.add_argument("--year", help="Year of games to be collected")
 
 args = parser.parse_args()
 
