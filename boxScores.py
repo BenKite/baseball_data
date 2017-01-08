@@ -3,15 +3,17 @@
 ## Ben Kite
 ## 2016-04-22
 
-"""
-Pulls all boxscores for a team for a single season.  Requires user to provide the team and the year.
+"""Pulls all boxscores for a team for a single season.  Requires user to provide the team and the year.
 
 The teams are indicated by providing one of the following abreviations:
 ['ATL', 'ARI', 'BAL', 'BOS', 'CHC', 'CHW', 'CIN', 'CLE', 'COL', 'DET', 
  'KCR', 'HOU', 'LAA', 'LAD', 'MIA', 'MIL', 'MIN', 'NYM', 'NYY', 'OAK', 
  'PHI', 'PIT', 'SDP', 'SEA', 'SFG', 'STL', 'TBR', 'TEX', 'TOR', 'WSN']
 
-This can take up to six minutes to run for a single team!  I'm going to work toward this having an update option so that data can be scraped during the course of a season and quickly added to a .csv file. 
+This can take up to six minutes to run for a single team!  I'm going
+to work toward this having an update option so that data can be
+scraped during the course of a season and quickly added to a .csv
+file.
 
 Running the following would give you all boxscores for the Yankees in 2010:
 
@@ -36,6 +38,8 @@ datdir = "data/BoxScores/"
 
 ## Write code to read the boxscore for a game
 
+## This is used later to append integers to games on the same date to
+## separate them.
 def Quantify (x):
     out = []
     for i in x:
@@ -45,6 +49,9 @@ def Quantify (x):
             out.append(float(i))
     return(out)
 
+## I found out the hard way that the team labels in
+## baseball-reference.com change. The names on the right are
+## alternatives incase the one on my left doesn't work.
 def GameFinder (gameInfo):
     teamNames = {"KCR":"KCA",
                  "CHW":"CHA",
@@ -152,20 +159,6 @@ def wrapper (team, year, overwrite = True):
             pass
     playerGameData = pandas.concat(DatDict) 
     playerGameData.to_csv(directory + team + ".csv")
-
-#teams = ['ATL', 'ARI', 'BAL', 'BOS', 'CHC', 'CHW', 'CIN', 'CLE', 'COL',
-#         'DET', 'KCR', 'HOU', 'LAA', 'LAD', 'MIA', 'MIL', 'MIN', 'NYM', 'NYY',
-#         'OAK', 'PHI', 'PIT', 'SDP', 'SEA', 'SFG', 'STL', 'TBR', 'TEX', 'TOR',
-#         'WSN'] 
-
-#years = [2016]
-
-#for y in years:
-#    for t in teams:
-#        try:
-#            wrapper(t, y, overwrite = True)            
-#        except KeyError:    
-#            pass
         
 wrapper(team, year, overwrite = True)
     
