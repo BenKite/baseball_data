@@ -10,6 +10,11 @@ from matplotlib.cbook import get_sample_data
 from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationBbox
 
 datdir = "data/"
+## If you want to run this on your own, you need to run the following commands
+## using the data scraping scripts in this repo:
+## $ python playerData.py --year 2016
+## $ python playerData.py --year 2015
+## Running these in your console will pull the appropriate data files.
 
 teams = ['ATL', 'ARI', 'BAL', 'BOS', 'CHC', 'CHW', 'CIN', 'CLE', 'COL', 'DET', 
          'KCR', 'HOU', 'LAA', 'LAD', 'MIA', 'MIL', 'MIN', 'NYM', 'NYY', 'OAK', 
