@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 ## Ben Kite
 ## 2016-04-22
 
@@ -22,13 +24,22 @@
 ## trends, as well as a pdf showing the relationship between adjacent
 ## game chunks.
 
-import pandas, os, numpy
+import pandas, os, numpy, argparse
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
 from sklearn import datasets, linear_model
 
-dat = pandas.read_csv("data/BoxScores/2016/KCR.csv")
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("--team", help="Name of team from which you want to collect data.")
+parser.add_argument("--year", help="Year of games to be collected")
+
+args = parser.parse_args()
+
+year  = str(args.year)
+team = str(args.team)
+
+dat = pandas.read_csv("data/BoxScores/" + str(year) +  "/" + team + ".csv")
 
 def battAvg(pdat, gamesInChunk):
     games = len(pdat)
@@ -62,8 +73,12 @@ def playerAutoScatter(player, dat, gamelag):
         autoScatter(avg, gamelag, player)
     else:
         return(0)
-   
-pp = PdfPages('Royals_AutoScatter_2016.pdf')
+
+players = numpy.unique(dat["Name"])
+players = players[players != "Team_Totals"]
+gamelag = 5
+    
+pp = PdfPages(team + '_AutoScatter_2016.pdf')
 for p in players:
     plt.figure()
     tmp = playerAutoScatter(p, dat, gamelag)
@@ -88,10 +103,7 @@ def playerPlotter(player, dat, minab):
     else:
         return(0)        
 
-players = numpy.unique(dat["Name"])
-players = players[players != "Team_Totals"]
-
-pp = PdfPages('Royals_2016.pdf')
+pp = PdfPages(team + '_2016.pdf')
 for p in players:        
     tmpfig = playerPlotter(p, dat, 150)
     if tmpfig != 0:
