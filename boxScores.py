@@ -158,6 +158,8 @@ def wrapper (team, year, overwrite = True):
         except IndexError:
             pass
     playerGameData = pandas.concat(DatDict) 
+    playerGameData.reset_index(inplace = True)
+    playerGameData = playerGameData.rename(columns = {"level_0": "Game", "level_1": "BatPos"})
     playerGameData.to_csv(directory + team + ".csv")
         
 wrapper(team, year, overwrite = True)
