@@ -1,28 +1,15 @@
 #!/usr/bin/env python3
 
 ## Ben Kite
-## 2016-04-22
+## 2017-01-15
 
-## I was interested in how a player's batting performance changes over
-## the course of a season. People like to talk about a batter being
-## hot or being in a slump, so I wanted to show the ups and down of a
-## player over the course of the season.
+"""
+Running this script will produce a pdf with plots showing BA
+trends, as well as a pdf showing the relationship between adjacent
+game chunks.
 
-## Here I looked at the Royals in the 2016 season while considering
-## players with over 100 at bats. I looked at their games in chunks of
-## 5 or 10 and computed their batting average just over those games.
-## The chunks here overlap, so with 5 game chunks the first is games
-## 1-5, whereas the second is 2-6, etc.  I looked at how adjacent
-## chunks (e.g., games 1-5 and games 6-10) were related in terms of
-## performance with batting average.
-
-## This requires the 2016 data from the Royals that can be obtained by
-## running boxScores.py:
-## $ python boxScores.py --team KCR --year 2016
-
-## Running this script will produce a pdf with plots showing BA
-## trends, as well as a pdf showing the relationship between adjacent
-## game chunks.
+You will need to run the boxScores.py script to get your data first. 
+"""
 
 import pandas, os, numpy, argparse
 import matplotlib.pyplot as plt
