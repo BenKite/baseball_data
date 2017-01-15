@@ -2,7 +2,7 @@
 
 Ben Kite
 
-2017-01-08
+2017-01-15
 
 This is my collection of Python scripts that pull baseball data from
 the internet in fun ways.  I looked at baseball-reference.com and came
@@ -42,4 +42,5 @@ scores.
 
 battingOverTime.py:
 Uses the box score data to create plots to show how players batting
-ability changes over the course of the season.
+ability changes over the course of the season. This now runs from the
+command line.
