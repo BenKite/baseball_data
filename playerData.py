@@ -7,7 +7,7 @@ import pandas, os, argparse
 import dataScrape
 
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument("--year", help="Year of games to be collected. Eventually I'll allow multiple years (e.g., 2010-2012 or 2010 2012 2013, etc.)")
+parser.add_argument("--year", help="Year of games to be collected. Now multiple years can be requested by separating them with a dash(-).  For example '2012-2015'.")
 parser.add_argument("--team", help="Name of team you want data for. I'll also work to allow multiple teams. Defaults to pull for all teams.", default = "ALL")
 parser.add_argument("--datdir", help="Name of directory where the data should be stored.  If the directory does not exist it will be created. Defaults to data/", default = "data/")
 
@@ -32,8 +32,12 @@ else:
     teams = [team]
     checkold = False
 
-## Eventually years will have a range    
-years = [year]
+## Now a range of years is supported
+ys= year.split("-")
+if len(ys) > 1:
+    ys = range(int(ys[0]), int(ys[1]) + 1)
+years = []
+for y in ys: years.append(str(y))
  
 for year in years:      
     for t in teams:
