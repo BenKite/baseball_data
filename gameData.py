@@ -14,7 +14,7 @@ $ gameData.py --year 2016 datdir baseballScores/
 """
 
 import pandas, os, argparse
-from dataScrape import finder
+from dataScrape import gameFinder
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--year", help="Year of games to be collected. Eventually I'll allow multiple years (e.g., 2010-2012 or 2010 2012 2013, etc.)")
@@ -40,7 +40,7 @@ def YearData(year, directory):
 
     for tm in teams:
         try:
-            dataBase[tm] = finder(tm, year)
+            dataBase[tm] = gameFinder(tm, year)
         except IndexError:
             pass
 
