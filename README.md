@@ -2,25 +2,23 @@
 
 Ben Kite
 
-2017-01-15
+2017-01-20
 
 This is my collection of Python scripts that pull baseball data from
-the internet in fun ways.  I looked at baseball-reference.com and came
-up with some ways that I wanted to combine their data across multiple
-pages. Here I outline what each script does. 
+the internet. All data are pulled from baseball-reference.com.
 
-dataScrape.py: 
-Uses BeautifulSoup to scrape data from html and put
-them in pandas data frames.  This is where I will keep all of my data
-scraping functions.  I will work on adding comments explaining what is
-being done with the webpages.
+dataScrape.py:
+Contains a series of functions that use BeautifulSoup to scrape data
+from html and put them in pandas data frames.  This is where I will
+keep all of my data scraping functions.  I will work on adding
+comments explaining what is being done with the webpages.
 
 gameData.py: 
 I wanted a dataset for a given year that has basic
 information for all games played (teams involved, scores, winner,
 loser, save, attendence, etc.).  I searched for this for about 30
 seconds, and then I gave up and saw this as a fun opportunity work on
-some Python.  I used the “finder” function in dataScrape.py to pull
+some Python.  I used the “gameFinder” function in dataScrape.py to pull
 out the data from each teams page for the year I want.  These datasets
 have all of the 162 (more if theres postseason play) for that team.  I
 stacked all 30 datasets together, removed the duplicate games (I only
@@ -38,7 +36,7 @@ boxScores.py:
 This pulls out box score information for individuals games for a team
 for an entire season. It first looks at the team page to see when the
 games were, and then it uses those dates to pull individual box
-scores.
+scores. It will take a few minutes to run!
 
 battingOverTime.py:
 Uses the box score data to create plots to show how players batting
