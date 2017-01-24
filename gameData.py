@@ -7,9 +7,7 @@
 Finds all game played in the year that you specify and saves
 their results in a single .csv file.
 
-For example the follow command will collect data from all 2016 games and save it in a .csv file in baseballScores/:
-
-$ gameData.py --year 2016 datdir baseballScores/
+The output file will be named with the year followed by "Games.csv".
 
 """
 
