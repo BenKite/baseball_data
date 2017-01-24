@@ -14,7 +14,7 @@ $ gameData.py --year 2016 datdir baseballScores/
 """
 
 import pandas, os, argparse
-from dataScrape import gameFinder
+from dataScrape import pullGameData
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--year", help="Year of games to be collected. Eventually I'll allow multiple years (e.g., 2010-2012 or 2010 2012 2013, etc.)")
@@ -33,14 +33,13 @@ def YearData(year, directory):
 
     dataBase = dict()
 
-    teams = ['ATL', 'ARI', 'BAL', 'BOS', 'CHC', 'CHW', 'CIN', 'CLE', 'COL',
-             'DET', 'KCR', 'HOU', 'LAA', 'LAD', 'MIA', 'MIL', 'MIN', 'NYM', 'NYY',
-             'OAK', 'PHI', 'PIT', 'SDP', 'SEA', 'SFG', 'STL', 'TBR', 'TEX', 'TOR',
-             'WSN']
+    teams = ['ATL', 'ARI', 'BAL', 'BOS', 'CHC', 'CHW', 'CIN', 'CLE', 'COL', 'DET',
+             'KCR', 'HOU', 'LAA', 'LAD', 'MIA', 'MIL', 'MIN', 'NYM', 'NYY', 'OAK',
+             'PHI', 'PIT', 'SDP', 'SEA', 'SFG', 'STL', 'TBR', 'TEX', 'TOR', 'WSN']
 
     for tm in teams:
         try:
-            dataBase[tm] = gameFinder(tm, year)
+            dataBase[tm] = pullGameData(tm, year)
         except IndexError:
             pass
 
