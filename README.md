@@ -2,41 +2,58 @@
 
 Ben Kite
 
-2017-01-20
+2017-01-24
 
 This is my collection of Python scripts that pull baseball data from
 the internet. All data are pulled from baseball-reference.com.
 
+This collection of scripts was written in Python 3.5.
+The scripts are dependent on the following packages:
+- pandas
+- os
+- re
+- requests
+- bs4
+- numpy
+- numpy
+- argparse
+- matplotlib
+- sklearn
+- scipy
+- statsmodels
+
+If you are new to Python, I recommend installing the Anaconda distribution:
+- https://www.continuum.io/downloads
+
 dataScrape.py:
-Contains a series of functions that use BeautifulSoup to scrape data
-from html and put them in pandas data frames.  This is where I will
+Contains a series of functions that use bs4.BeautifulSoup to scrape data
+from html and put them in pandas data frames.  This is where I
 keep all of my data scraping functions.  I will work on adding
 comments explaining what is being done with the webpages.
 
-gameData.py: 
-I wanted a dataset for a given year that has basic
-information for all games played (teams involved, scores, winner,
-loser, save, attendence, etc.).  I searched for this for about 30
-seconds, and then I gave up and saw this as a fun opportunity work on
-some Python.  I used the “gameFinder” function in dataScrape.py to pull
-out the data from each teams page for the year I want.  These datasets
+gameData.py:
+I wanted a dataset for a given year that has basic information for all
+games played (teams involved, scores, winner, loser, save, attendence,
+etc.). I use the “pullGameData” function in dataScrape.py to pull out
+the data from each teams page for the year I want.  These datasets
 have all of the 162 (more if theres postseason play) for that team.  I
 stacked all 30 datasets together, removed the duplicate games (I only
 used the home games from each team’s page), cleaned up the variable
-names to make a bit more sense, and then saved the final product in a
-.csv file.  This now can run directly in a command line.
+names to make a bit more sense, and then save the final product in a
+.csv file.  This is designed to be run in a console.
 
 playerData.py:
-I also wanted to pull data summarizing individual seasons for players.
-This script pull data on batting and pitching from 5 different tables
-that are found on a teams page of a given year.  See the help info ($
-python playerData.py --help) for instructions.
+Pull data summarizing individual seasons for players.  This script
+pull data on batting and pitching from 5 different tables that are
+found on a teams page of a given year.  See the help info ($ python
+playerData.py --help) for instructions.
 
 boxScores.py:
 This pulls out box score information for individuals games for a team
 for an entire season. It first looks at the team page to see when the
 games were, and then it uses those dates to pull individual box
-scores. It will take a few minutes to run!
+scores. It will take a few minutes to run. See the help info ($ python
+boxScores.py --help) for instructions.
 
 battingOverTime.py:
 Uses the box score data to create plots to show how players batting
