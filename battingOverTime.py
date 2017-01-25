@@ -20,13 +20,15 @@ from sklearn import datasets, linear_model
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--team", help="Name of team from which you want to collect data.")
 parser.add_argument("--year", help="Year of games to be collected")
+parser.add_argument("--datdir", help="Name of data directory")
 
 args = parser.parse_args()
 
 year  = str(args.year)
 team = str(args.team)
+datdir = str(args.datdir)
 
-dat = pandas.read_csv("data/BoxScores/" + str(year) +  "/" + team + ".csv")
+dat = pandas.read_csv(datdir + team + "_" + str(year) +  ".csv")
 
 def battAvg(pdat, gamesInChunk):
     games = len(pdat)
@@ -65,7 +67,7 @@ players = numpy.unique(dat["Name"])
 players = players[players != "Team_Totals"]
 gamelag = 5
     
-pp = PdfPages(team + '_AutoScatter_2016.pdf')
+pp = PdfPages(team + '_AutoScatter_' + year + '.pdf')
 for p in players:
     plt.figure()
     tmp = playerAutoScatter(p, dat, gamelag)
@@ -90,7 +92,7 @@ def playerPlotter(player, dat, minab):
     else:
         return(0)        
 
-pp = PdfPages(team + '_2016.pdf')
+pp = PdfPages(team + '_' + year + '.pdf')
 for p in players:        
     tmpfig = playerPlotter(p, dat, 150)
     if tmpfig != 0:
