@@ -17,8 +17,10 @@ def pullGameData (team, year):
     dat = pandas.DataFrame(game_data)
     dat = dat[dat[0].notnull()]
     dat = dat.reset_index(drop = True)
-    ## I will update this soon to pull the names from the site!
-    ## This was a lazy way to get names at first
+    ## I decided to name these myself to have more control.
+    ## This certainly requires me to keep checking to ensure that column names
+    ## stay consistent.  I am considering pulling out the names from the page 
+    ## and then renaming them just to be safe.
     dat.rename(columns = {0 :"gamenum", 1 :"gamenum2", 2 :"Date",
                               3 :"boxscore", 4 :"Team", 5:"Location", 6:"Opp", 7:"TeamRecord",
                               8:"Runs", 9:"OppRuns", 10:"Inn", 11:"WL", 12:"Rank", 13:"GB",
@@ -223,4 +225,151 @@ def pullBoxscores (team, year, directory, overwrite = True):
     playerGameData.to_csv(directory + team + "_" + year + ".csv")
         
 
+def PlayByPlay (gameInfo):
+    teamNames = {"KCR":"KCA",
+                 "CHW":"CHA",
+                 "CHC":"CHN",
+                 "LAD":"LAN",
+                 "NYM":"NYN",
+                 "NYY":"NYA",
+                 "SDP":"SDN",
+                 "SFG":"SFN",
+                 "STL":"SLN",
+                 "TBR":"TBA",
+                 "WSN":"WAS",
+                 "LAA":"ANA"}
+    date = gameInfo["Date"]
+    home = gameInfo["HomeGame"]
+    if home == 0:
+        team = gameInfo["Opp"]
+        opp = gameInfo["Team"]
+        if opp in teamNames:
+            opp = teamNames[opp]
+    else:
+        team = gameInfo["Team"]
+        opp = gameInfo["Opp"]
+        if team in teamNames:
+            team = teamNames[team]
+    url = "http://www.baseball-reference.com/boxes/" + team + "/" + team + str(date) + ".shtml"
+    res = requests.get(url)
+    soup = bs4.BeautifulSoup(res.text)
+    tables = soup.findAll('table', id = "play_by_play")
+    data_rows = tables[0].findAll('tr')
+    game_data = [[td.getText() for td in data_rows[i].findAll('td')]
+            for i in range(len(data_rows))
+            ]
+    data_header = tables[0].findAll('thead')    
+    header = data_header[0].getText()
+    header = header.replace("\n\n", "")   
+    header = header.split("\n")        
+    dat = pandas.DataFrame(game_data)
+    dat.columns = header
+    dat = dat.loc[dat["Batter"].notnull()]
+    dat = dat.loc[dat["Play Description"].notnull()]
+    dat["Date"] = date
+    dat["Hteam"] = team
+    dat["Ateam"] = opp
+    pteam = []
+    pteams = numpy.unique(dat["@Bat"])
+    for d in dat["@Bat"]:
+        if d == pteams[0]:
+            pteam.append(pteams[1])
+        else:
+            pteam.append(pteams[0])
+    dat["Pteam"] = pteam
+    return(dat)
+  
+def pullPlaybyPlay (team, year, output):
+    oteam = team
+    teamNames = {"KCR":"KCA",
+                 "CHW":"CHA",
+                 "CHC":"CHN",
+                 "LAD":"LAN",
+                 "NYM":"NYN",
+                 "NYY":"NYA",
+                 "SDP":"SDN",
+                 "SFG":"SFN",
+                 "STL":"SLN",
+                 "TBR":"TBA",
+                 "WSN":"WAS",
+                 "LAA":"ANA"}
+    dat = pullGameData(team, year)
+    if team in teamNames:
+        team = teamNames[team]
+    DatDict = dict()
+    for r in range(len(dat)):
+        inputs = dat.loc[r]
+        hteam = inputs["Team"]
+        ateam = inputs["Opp"]
+        if hteam in teamNames:
+            inputs["Team"] = teamNames[hteam]
+        if ateam in teamNames:
+            inputs["Opp"] = teamNames[ateam]
+        try:
+            DatDict[r] = PlayByPlay(inputs)            
+        except IndexError:
+            pass
+    bdat = pandas.concat(DatDict)
+    bdat["Hteam"] = oteam
+    names = []
+    for i in bdat["Batter"]:
+        if len(i) > 0:
+            xx = i
+            xx = xx.replace("\xa0", "")
+            names.append(xx)
+        else:
+            names.append("NA")
+    bdat["BatterName"] = names
+    bdat["out"] = (bdat["Play Description"].str.contains("out")) | (bdat["Play Description"].str.contains("Play")) | (bdat["Play Description"].str.contains("Flyball")) | (bdat["Play Description"].str.contains("Popfly")) 
+    bdat["hbp"] = bdat["Play Description"].str.startswith("Hit")
+    bdat["walk"] = (bdat["Play Description"].str.contains("Walk"))
+    bdat["stolenB"] = bdat["Play Description"].str.contains("Steal")
+    bdat["wild"] = bdat["Play Description"].str.startswith("Wild") | bdat["Play Description"].str.contains("Passed")
+    bdat["error"] = bdat["Play Description"].str.contains("Reached on")
+    bdat["pick"] = bdat["Play Description"].str.contains("Picked")
+    bdat["balk"] = bdat["Play Description"].str.contains("Balk")
+    bdat["interference"] = bdat["Play Description"].str.contains("Reached on Interference")
+    bdat["sacrifice"] = bdat["Play Description"].str.contains("Sacrifice")
+    bdat["ab"] = (bdat["walk"] == False) & (bdat["sacrifice"] == False) & (bdat["interference"] == False) & (bdat["stolenB"] == False) & (bdat["wild"] == False) & (bdat["hbp"] == False) & (bdat["pick"] == False) & (bdat["balk"] == False)
+    bdat["hit"] =  (bdat["walk"] == False) & (bdat["out"] == False) & (bdat["stolenB"] == False) & (bdat["error"] == False) & (bdat["ab"] == True)
+    bdat.to_csv(output)
+    return(bdat)
+
+def pullPitcherData (team, year):
+    url = "http://www.baseball-reference.com/teams/" + team + "/" + str(year) + ".shtml"
+    res = requests.get(url)
+    soup = bs4.BeautifulSoup(res.text)
+    tables = soup.findAll('table', id = "team_pitching")
+    data_rows = tables[0].findAll('tr')
+    data_header = tables[0].findAll('thead')    
+    game_data = [[td.getText() for td in data_rows[i].findAll('td')]
+        for i in range(len(data_rows))
+        ]
+    header = data_header[0].getText()
+    header = header.split("\n")
+    for i in range(0, 4):
+        header.remove("")  
+    data = pandas.DataFrame(game_data)
+    data.columns = header
+    data = data[data.Name.notnull()]
+    data = data[data.Rk.notnull()]
+    data = data[data.G != "162"]
+    data = data.reset_index(drop = True)
+    data["Team"] = team
+    data["Year"] = year
+    data["LeftHanded"] = data["Name"].str.endswith("*")  
+    names = data.columns
+    for c in range(0, len(names)):
+        replacement = []
+        if type (data.loc[0][c]) == str:
+            k = names[c]
+            for i in range(0, len(data[k])):
+                p = data.loc[i][c]
+                xx = re.sub("[#@&*^%$!]", "", p)
+                xx = xx.replace("\xa0", "_")
+                xx = xx.replace(" ", "_")
+                replacement.append(xx)
+            data[k] = replacement
+    data = data[["Name", "LeftHanded", "Team", "Year"]]
+    return(data)
     
