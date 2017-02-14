@@ -5,6 +5,11 @@ import pandas, numpy
 import requests, bs4
 import re, os
 
+## Pulls game level data for team and year provided.
+## The team provided must be a three-character abbreviation:
+## 'ATL', 'ARI', 'BAL', 'BOS', 'CHC', 'CHW', 'CIN', 'CLE', 'COL', 'DET',
+## 'KCR', 'HOU', 'LAA', 'LAD', 'MIA', 'MIL', 'MIN', 'NYM', 'NYY', 'OAK',
+## 'PHI', 'PIT', 'SDP', 'SEA', 'SFG', 'STL', 'TBR', 'TEX', 'TOR', 'WSN'
 def pullGameData (team, year):
     url = "http://www.baseball-reference.com/teams/" + team + "/" + str(year) + "-schedule-scores.shtml"
     res = requests.get(url)
@@ -67,7 +72,15 @@ def pullGameData (team, year):
     #dat = dat[keep]
 
     return(dat)
-    
+
+## Pulls data summarizing the season performance of all players on the
+## team provided for the given year.
+## The table type argument must be one of five possibilities:
+## "team_batting"
+## "team_pitching"
+## "standard_fielding"
+## "players_value_batting"
+## "players_value_pitching"
 def pullPlayerData (team, year, tabletype):
     url = "http://www.baseball-reference.com/teams/" + team + "/" + str(year) + ".shtml"
     res = requests.get(url)
@@ -104,7 +117,6 @@ def pullPlayerData (team, year, tabletype):
 
 ## This is used later to append integers to games on the same date to
 ## separate them.
-
 def Quantify (x):
     out = []
     for i in x:
@@ -114,7 +126,8 @@ def Quantify (x):
             out.append(float(i))
     return(out)
     
-
+## Pulls box score data from a game provided in the gameInfo input
+## This is meant to be run by the pullBoxScores function below.
 def gameFinder (gameInfo):
     teamNames = {"KCR":"KCA",
                  "CHW":"CHA",
@@ -203,8 +216,11 @@ def gameFinder (gameInfo):
             tmp = Quantify(data[d])
             data[d] = tmp 
     data = data[data["AB"] > 0]
-    return(data)    
-    
+    return(data)
+
+## Pulls all of the boxscores for a team in a given year.
+## The directory argument is used to specify where to save the .csv
+## If overwrite is True, an existing file with the same name will be overwritten.
 def pullBoxscores (team, year, directory, overwrite = True):
     if not os.path.exists(directory):
         os.makedirs(directory)       
@@ -224,7 +240,7 @@ def pullBoxscores (team, year, directory, overwrite = True):
     playerGameData = playerGameData.rename(columns = {"level_0": "Game", "level_1": "BatPos"})
     playerGameData.to_csv(directory + team + "_" + year + ".csv")
         
-
+## This is an internal function to pullPlaybyPlay
 def PlayByPlay (gameInfo):
     teamNames = {"KCR":"KCA",
                  "CHW":"CHA",
@@ -278,7 +294,10 @@ def PlayByPlay (gameInfo):
             pteam.append(pteams[0])
     dat["Pteam"] = pteam
     return(dat)
-  
+
+## Pulls all of the play by play tables for a team for a given year.
+## Output is the name of the .csv file you want to save.  I force a
+## file to be saved here because the function takes a while to run.
 def pullPlaybyPlay (team, year, output):
     oteam = team
     teamNames = {"KCR":"KCA",
@@ -320,6 +339,8 @@ def pullPlaybyPlay (team, year, output):
         else:
             names.append("NA")
     bdat["BatterName"] = names
+    ## These rules attempt to sort out different play outcomes by
+    ## searching the text in the "Play Description" variable.
     bdat["out"] = (bdat["Play Description"].str.contains("out")) | (bdat["Play Description"].str.contains("Play")) | (bdat["Play Description"].str.contains("Flyball")) | (bdat["Play Description"].str.contains("Popfly")) 
     bdat["hbp"] = bdat["Play Description"].str.startswith("Hit")
     bdat["walk"] = (bdat["Play Description"].str.contains("Walk"))
@@ -335,6 +356,9 @@ def pullPlaybyPlay (team, year, output):
     bdat.to_csv(output)
     return(bdat)
 
+## This pulls information about which hand a pitcher throws with.  I
+## made this solely to allow pitcher handedness to be used as a
+## variable in models.
 def pullPitcherData (team, year):
     url = "http://www.baseball-reference.com/teams/" + team + "/" + str(year) + ".shtml"
     res = requests.get(url)
