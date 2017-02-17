@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 ## Ben Kite
-## 2017-01-05
+## 2017-02-16
 
 """
 Finds all game played in the year that you specify and saves
@@ -12,7 +12,7 @@ The output file will be named with the year followed by "Games.csv".
 """
 
 import pandas, os, argparse
-from dataScrape import pullGameData
+from baseballReferenceScrape import pullGameData
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--year", help="Year of games to be collected. Eventually I'll allow multiple years (e.g., 2010-2012 or 2010 2012 2013, etc.)")

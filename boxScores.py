@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 ## Ben Kite
-## 2017-01-20
+## 2017-02-16
 
 """Pulls all boxscores for a team for a single season.  Requires user to provide the team and the year.
 
@@ -22,7 +22,7 @@ $ python boxScores.py --team NYY --year 2010
 """
 
 import argparse
-import dataScrape as ds
+import baseballReferenceScrape as ds
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--team", help="Name of team from which you want to collect data.")

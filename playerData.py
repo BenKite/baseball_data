@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 ## Ben Kite
-## 2017-01-06
+## 2017-02-16
 
 """
 
@@ -16,7 +16,7 @@ Names for the output files list the team, the year, and then the table type.
 """
 
 import pandas, os, argparse
-import dataScrape
+import baseballReferenceScrape
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--year", help="Year of games to be collected. Now multiple years can be requested by separating them with a dash(-).  For example '2012-2015'.")
@@ -53,31 +53,31 @@ for y in ys: years.append(str(y))
 for year in years:      
     for t in teams:
         try:
-            Batting = dataScrape.pullPlayerData(t, year, "team_batting")
+            Batting = baseballReferenceScrape.pullPlayerData(t, year, "team_batting")
             Batting.to_csv(directory + "/" + t + "_" + str(year) + "_batting.csv", index = False, encoding = "utf-8")
         except IndexError:
             pass
     
         try:
-            Pitching = dataScrape.pullPlayerData(t, year, "team_pitching")
+            Pitching = baseballReferenceScrape.pullPlayerData(t, year, "team_pitching")
             Pitching.to_csv(directory + "/" + t + "_" + str(year) + "_pitching.csv", index = False, encoding = "utf-8")
         except IndexError:
             pass
     
         try:        
-            Fielding = dataScrape.pullPlayerData(t, year, "standard_fielding")
+            Fielding =baseballReferenceScrape.pullPlayerData(t, year, "standard_fielding")
             Fielding.to_csv(directory + "/" + t + "_" + str(year) + "_fielding.csv", index = False, encoding = "utf-8")
         except IndexError:
             pass
         
         try:        
-            ValueBatting = dataScrape.pullPlayerData(t, year, "players_value_batting")
+            ValueBatting = baseballReferenceScrape.pullPlayerData(t, year, "players_value_batting")
             ValueBatting.to_csv(directory + "/" + t + "_" + str(year) + "_Valuebatting.csv", index = False, encoding = "utf-8")
         except IndexError:
             pass
     
         try:
-            ValuePitching = dataScrape.pullPlayerData(t, year, "players_value_pitching")
+            ValuePitching = baseballReferenceScrape.pullPlayerData(t, year, "players_value_pitching")
             ValuePitching.to_csv(directory + "/" + t + "_" + str(year) + "_Valuepitching.csv", index = False, encoding = "utf-8")
         except IndexError:
             pass
@@ -86,31 +86,31 @@ if checkold:
     for year in years:      
         for t in oldteams:
             try:
-                Batting = dataScrape.pullPlayerData(t, year, "team_batting")
+                Batting = baseballReferenceScrape.pullPlayerData(t, year, "team_batting")
                 Batting.to_csv(directory + "/" + t + "_" + str(year) + "_batting.csv", index = False, encoding = "utf-8")
             except IndexError:
                 pass
                 
             try:
-                Pitching = dataScrape.pullPlayerData(t, year, "team_pitching")
+                Pitching = baseballReferenceScrape.pullPlayerData(t, year, "team_pitching")
                 Pitching.to_csv(directory + "/" + t + "_" + str(year) + "_pitching.csv", index = False, encoding = "utf-8")
             except IndexError:
                 pass
                 
             try:        
-                Fielding = dataScrape.pullPlayerData(t, year, "standard_fielding")
+                Fielding = baseballReferenceScrape.pullPlayerData(t, year, "standard_fielding")
                 Fielding.to_csv(directory + "/" + t + "_" + str(year) + "_fielding.csv", index = False, encoding = "utf-8")
             except IndexError:
                 pass
                 
             try:        
-                ValueBatting = dataScrape.pullPlayerData(t, year, "players_value_batting")
+                ValueBatting = baseballReferenceScrape.pullPlayerData(t, year, "players_value_batting")
                 ValueBatting.to_csv(directory + "/" + t + "_" + str(year) + "_Valuebatting.csv", index = False, encoding = "utf-8")
             except IndexError:
                 pass
                 
             try:
-                ValuePitching = dataScrape.pullPlayerData(t, year, "players_value_pitching")
+                ValuePitching = baseballReferenceScrape.pullPlayerData(t, year, "players_value_pitching")
                 ValuePitching.to_csv(directory + "/" + t + "_" + str(year) + "_Valuepitching.csv", index = False, encoding = "utf-8")
             except IndexError:
                 pass
