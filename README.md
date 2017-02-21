@@ -2,9 +2,12 @@
 
 Ben Kite
 
-2017-02-16
+2017-02-20
 
-This is my collection of Python scripts that pull data from baseball-reference.com.
+This directory contains baseballReferenceScrape.py which pulls data
+from baseball-reference.com. There are also numerous other scripts
+that use the functions defined in baseballReferenceScrape.py to
+automate the scraping and stacking of multiple tables.
 
 This collection of scripts was written in Python 3.5.
 The scripts are dependent on the following packages:
