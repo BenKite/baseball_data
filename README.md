@@ -2,7 +2,15 @@
 
 Ben Kite
 
-2017-02-20
+2017-02-22
+
+WARNING! On 2/22/17 I noticed a change in some pages with how tables
+are embedded in the html code. This prevents most the scripts in the
+repo from functioning properly. I am going to wait a few days to
+ensure that the changes are permanent before I update the
+code. Regardless, there will be important changes to the scripts in
+the coming weeks to improve the flexibility of the code and robustness
+to changes in the html structure to prevent this from happening again.
 
 This directory contains baseballReferenceScrape.py which pulls data
 from baseball-reference.com. There are also numerous other scripts
