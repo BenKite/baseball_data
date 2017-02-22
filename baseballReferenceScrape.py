@@ -12,11 +12,14 @@ import re, os
 def findTables(url):
     res = requests.get(url)
     soup = bs4.BeautifulSoup(res.text, "lxml")
-    divs = soup.findAll('div', "table_container")
+    divs = soup.findAll('div', {"class": 'table_outer_container'})
+    divs[0].findAll("table")
     ids = []
     for div in divs:
         searchme = str(div.findAll("table"))[0:500]
-        ids.append(searchme[searchme.find("id=") + 3: searchme.find(">")])
+        x = searchme[searchme.find("id=") + 3: searchme.find(">")]
+        x = x.replace("\"", "")
+        ids.append(x)
     return(ids)
 ## For example:
 ## findTables("http://www.baseball-reference.com/teams/KCR/2016.shtml")
@@ -29,17 +32,18 @@ def pullTable(url, tableID):
     soup = bs4.BeautifulSoup(res.text, "lxml")
     tables = soup.findAll('table', id = tableID)
     data_rows = tables[0].findAll('tr')
-    data_header = tables[0].findAll('thead')    
-    game_data = [[td.getText() for td in data_rows[i].findAll('td')]
+    data_header = tables[0].findAll('thead')   
+    data_header = data_header[0].findAll("tr")
+    data_header = data_header[0].findAll("th")
+    game_data = [[td.getText() for td in data_rows[i].findAll(['th','td'])]
         for i in range(len(data_rows))
         ]
-    header = data_header[0].getText()
-    header = header.split("\n")
-    for i in range(0, 4):
-        header.remove("")  
     data = pandas.DataFrame(game_data)
+    header = []
+    for i in range(len(data.columns)):
+        header.append(data_header[i].getText())
     data.columns = header
-    data = data[data.Name.notnull()]
+    data = data.loc[data[header[0]] != header[0]]
     data = data.reset_index(drop = True)
     return(data)
 ## For example:   
