@@ -107,22 +107,7 @@ def pullGameData (team, year):
 ## "players_value_pitching"
 def pullPlayerData (team, year, tabletype):
     url = "http://www.baseball-reference.com/teams/" + team + "/" + str(year) + ".shtml"
-    res = requests.get(url)
-    ## Work around comments
-    comm = re.compile("<!--|-->")    
-    soup = bs4.BeautifulSoup(comm.sub("", res.text), 'lxml')
-    tables = soup.findAll('table', id = tabletype)
-    data_rows = tables[0].findAll('tr')
-    data_header = tables[0].findAll('thead')    
-    game_data = [[td.getText() for td in data_rows[i].findAll('td')]
-        for i in range(len(data_rows))
-        ]
-    header = data_header[0].getText()
-    header = header.split("\n")
-    for i in range(0, 4):
-        header.remove("")  
-    data = pandas.DataFrame(game_data)
-    data.columns = header
+    data = pullTable(url, tabletype)
     data = data[data.Name.notnull()]
     data = data.reset_index(drop = True)
     names = data.columns
