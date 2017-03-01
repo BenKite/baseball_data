@@ -11,25 +11,31 @@ import re, os
 ## pullTable function for the tableID argument.
 def findTables(url):
     res = requests.get(url)
-    soup = bs4.BeautifulSoup(res.text, "lxml")
-    divs = soup.findAll('div', {"class": 'table_outer_container'})
-    divs[0].findAll("table")
+    ## The next two lines get around the issue with comments breaking the parsing.
+    comm = re.compile("<!--|-->")    
+    soup = bs4.BeautifulSoup(comm.sub("", res.text), 'lxml')
+    divs = soup.findAll('div', id = "content")
+    divs = divs[0].findAll("div", id=re.compile("^all"))
     ids = []
     for div in divs:
-        searchme = str(div.findAll("table"))[0:500]
+        searchme = str(div.findAll("table"))
         x = searchme[searchme.find("id=") + 3: searchme.find(">")]
         x = x.replace("\"", "")
-        ids.append(x)
+        if len(x) > 0:
+            ids.append(x)
     return(ids)
 ## For example:
 ## findTables("http://www.baseball-reference.com/teams/KCR/2016.shtml")
 
 
 ## Pulls a single table from a url provided by the user.
-## The desired table should be specified by tableID
+## The desired table should be specified by tableID.
+## This function is used in all functions that do more complicated pulls.
 def pullTable(url, tableID):
     res = requests.get(url)
-    soup = bs4.BeautifulSoup(res.text, "lxml")
+    ## Work around comments
+    comm = re.compile("<!--|-->")    
+    soup = bs4.BeautifulSoup(comm.sub("", res.text), 'lxml')
     tables = soup.findAll('table', id = tableID)
     data_rows = tables[0].findAll('tr')
     data_header = tables[0].findAll('thead')   
@@ -59,25 +65,8 @@ def pullTable(url, tableID):
 ## 'PHI', 'PIT', 'SDP', 'SEA', 'SFG', 'STL', 'TBR', 'TEX', 'TOR', 'WSN'
 def pullGameData (team, year):
     url = "http://www.baseball-reference.com/teams/" + team + "/" + str(year) + "-schedule-scores.shtml"
-    res = requests.get(url)
-    soup = bs4.BeautifulSoup(res.text, "lxml")
-    tables = soup.findAll('table', id = "team_schedule")
-    data_rows = tables[0].findAll('tr')  
-    game_data = [[td.getText() for td in data_rows[i].findAll('td')]
-        for i in range(len(data_rows))
-        ]
-    dat = pandas.DataFrame(game_data)
-    dat = dat[dat[0].notnull()]
-    dat = dat.reset_index(drop = True)
-    ## I decided to name these myself to have more control.
-    ## This certainly requires me to keep checking to ensure that column names
-    ## stay consistent.  I am considering pulling out the names from the page 
-    ## and then renaming them just to be safe.
-    dat.rename(columns = {0 :"gamenum", 1 :"gamenum2", 2 :"Date",
-                              3 :"boxscore", 4 :"Team", 5:"Location", 6:"Opp", 7:"TeamRecord",
-                              8:"Runs", 9:"OppRuns", 10:"Inn", 11:"WL", 12:"Rank", 13:"GB",
-                              14:"Win", 15:"Loss", 16:"Save", 17:"Time", 18:"DN", 19:"Attendance",
-                              20:"Streak"}, inplace = True)
+    ## Let's funnel this work into the pullTable function
+    dat = pullTable(url, "team_schedule")
     dates = dat["Date"]
     ndates = []
     for d in dates:
@@ -87,10 +76,8 @@ def pullGameData (team, year):
         mapping = {"Mar": "03", "Apr": "04", "May": "05", "Jun": "06", "Jul": "07", "Aug": "08",
                    "Sep": "09", "Oct": "10", "Nov":"11"}
         m = mapping[month]
-        ndates.append(str(year) + m + day)
-    
+        ndates.append(str(year) + m + day)    
     uni, counts = numpy.unique(ndates, return_counts = True)
-
     ndates = []
     for t in range(len(counts)):
         ux = uni[t]
@@ -102,22 +89,11 @@ def pullGameData (team, year):
                 ii = i + 1
                 ndates.append(ux + str(ii))     
     dat["Date"] = ndates  
-    
-    xx = []
-    for i in dat["Location"]:
-        if i == "@":
-            xx.append(0)
-        else:
-            xx.append(1)
-
-    dat["HomeGame"] = xx
-    
-    #keep = []
-    #for i in dat["Runs"]:
-    #    keep.append(len(i) < 3)
-
-    #dat = dat[keep]
-
+    dat.rename(columns = {dat.columns[4] : "Location"}, inplace = True)
+    homegame = []
+    for g in dat["Location"]:
+        homegame.append(g == "")
+    dat["HomeGame"] = homegame
     return(dat)
 
 
@@ -132,7 +108,9 @@ def pullGameData (team, year):
 def pullPlayerData (team, year, tabletype):
     url = "http://www.baseball-reference.com/teams/" + team + "/" + str(year) + ".shtml"
     res = requests.get(url)
-    soup = bs4.BeautifulSoup(res.text)
+    ## Work around comments
+    comm = re.compile("<!--|-->")    
+    soup = bs4.BeautifulSoup(comm.sub("", res.text), 'lxml')
     tables = soup.findAll('table', id = tabletype)
     data_rows = tables[0].findAll('tr')
     data_header = tables[0].findAll('thead')    
@@ -223,34 +201,20 @@ def gameFinder (gameInfo):
                     "WSN":"WashingtonNationalsbatting"} 
     date = gameInfo["Date"]
     home = gameInfo["HomeGame"]
-    if home == 0:
+    if home == False:
         opp = gameInfo["Opp"]
         if opp in teamNames:
             opp = teamNames[opp]
         url = "http://www.baseball-reference.com/boxes/" + opp + "/" + opp + str(date) + ".shtml"
     else:
-        team = gameInfo["Team"]
+        team = gameInfo["Tm"]
         if team in teamNames:
             team = teamNames[team]
         url = "http://www.baseball-reference.com/boxes/" + team + "/" + team + str(date) + ".shtml"
-    res = requests.get(url)
-    soup = bs4.BeautifulSoup(res.text)
-    battingInfo = battingNames[gameInfo["Team"]]
-    tables = soup.findAll('table', id = battingInfo)
-    data_rows = tables[0].findAll('tr')  
-    game_data = [[td.getText() for td in data_rows[i].findAll('td')]
-        for i in range(len(data_rows))
-        ]
-    data = pandas.DataFrame(game_data)
-    data = data[data[0].notnull()]
-    data = data.reset_index(drop = True)
-    data.rename(columns = {0 :"Name", 1 :"AB", 2 :"R",
-                               3 :"H", 4 :"RBI", 5:"BB", 6:"SO", 7:"PA",
-                              8:"batting_avg", 9:"onbase_perc", 10:"sluggin_perc", 11:"ops", 12:"pitches", 13:"strikes_total",
-                              14:"wba_bat", 15:"ali", 16:"WPAplus", 17:"WPAminus", 18:"re24_bat", 19:"PO",
-                              20:"A", 21:"details"}, inplace = True)
+    battingInfo = battingNames[gameInfo["Tm"]]
+    data = pullTable(url, battingInfo)
     names = []
-    for i in data["Name"]:
+    for i in data["Batting"]:
         if len(i) > 0:
             xx = (i.split(" ")[0] + "_" + i.split(" ")[1])
             xx = xx.replace("\xa0", "")
@@ -262,7 +226,7 @@ def gameFinder (gameInfo):
     data["HomeGame"] = home
     data = data[data.Name != "NA"]
     for d in data:
-        if d not in ["Name", "details", "Date", "HomeGame"]:
+        if d not in ["Batting", "Name", "Details", "Date", "HomeGame"]:
             tmp = Quantify(data[d])
             data[d] = tmp 
     data = data[data["AB"] > 0]
@@ -289,7 +253,7 @@ def pullBoxscores (team, year, directory, overwrite = True):
     playerGameData = pandas.concat(DatDict) 
     playerGameData.reset_index(inplace = True)
     playerGameData = playerGameData.rename(columns = {"level_0": "Game", "level_1": "BatPos"})
-    playerGameData.to_csv(directory + team + "_" + year + ".csv")
+    playerGameData.to_csv(directory + team + "_" + str(year) + ".csv")
 
         
 ## This is an internal function to pullPlaybyPlay
@@ -310,28 +274,16 @@ def PlayByPlay (gameInfo):
     home = gameInfo["HomeGame"]
     if home == 0:
         team = gameInfo["Opp"]
-        opp = gameInfo["Team"]
+        opp = gameInfo["Tm"]
         if opp in teamNames:
             opp = teamNames[opp]
     else:
-        team = gameInfo["Team"]
+        team = gameInfo["Tm"]
         opp = gameInfo["Opp"]
         if team in teamNames:
             team = teamNames[team]
     url = "http://www.baseball-reference.com/boxes/" + team + "/" + team + str(date) + ".shtml"
-    res = requests.get(url)
-    soup = bs4.BeautifulSoup(res.text)
-    tables = soup.findAll('table', id = "play_by_play")
-    data_rows = tables[0].findAll('tr')
-    game_data = [[td.getText() for td in data_rows[i].findAll('td')]
-            for i in range(len(data_rows))
-            ]
-    data_header = tables[0].findAll('thead')    
-    header = data_header[0].getText()
-    header = header.replace("\n\n", "")   
-    header = header.split("\n")        
-    dat = pandas.DataFrame(game_data)
-    dat.columns = header
+    dat = pullTable(url, "play_by_play")
     dat = dat.loc[dat["Batter"].notnull()]
     dat = dat.loc[dat["Play Description"].notnull()]
     dat["Date"] = date
@@ -371,10 +323,10 @@ def pullPlaybyPlay (team, year, output):
     DatDict = dict()
     for r in range(len(dat)):
         inputs = dat.loc[r]
-        hteam = inputs["Team"]
+        hteam = inputs["Tm"]
         ateam = inputs["Opp"]
         if hteam in teamNames:
-            inputs["Team"] = teamNames[hteam]
+            inputs["Tm"] = teamNames[hteam]
         if ateam in teamNames:
             inputs["Opp"] = teamNames[ateam]
         try:
@@ -415,20 +367,7 @@ def pullPlaybyPlay (team, year, output):
 ## variable in models.
 def pullPitcherData (team, year):
     url = "http://www.baseball-reference.com/teams/" + team + "/" + str(year) + ".shtml"
-    res = requests.get(url)
-    soup = bs4.BeautifulSoup(res.text)
-    tables = soup.findAll('table', id = "team_pitching")
-    data_rows = tables[0].findAll('tr')
-    data_header = tables[0].findAll('thead')    
-    game_data = [[td.getText() for td in data_rows[i].findAll('td')]
-        for i in range(len(data_rows))
-        ]
-    header = data_header[0].getText()
-    header = header.split("\n")
-    for i in range(0, 4):
-        header.remove("")  
-    data = pandas.DataFrame(game_data)
-    data.columns = header
+    data = pullTable(url, "team_pitching")
     data = data[data.Name.notnull()]
     data = data[data.Rk.notnull()]
     data = data[data.G != "162"]
