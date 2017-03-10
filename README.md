@@ -2,9 +2,7 @@
 
 Ben Kite
 
-2017-03-01
-
-There have been recent changes to baseball-reference.com which have caused some bugs in the scripts.  I made progress with fixing them on 3/1/17, but I may not get everything back to 100% until next week. 
+2017-03-09
 
 This directory contains baseballReferenceScrape.py which pulls data
 from baseball-reference.com. There are also numerous other scripts
@@ -18,7 +16,6 @@ The scripts are dependent on the following packages:
 - re
 - requests
 - bs4
-- numpy
 - numpy
 - argparse
 - matplotlib
