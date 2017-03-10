@@ -255,6 +255,7 @@ def PlayByPlay (gameInfo):
                  "TBR":"TBA",
                  "WSN":"WAS",
                  "LAA":"ANA"}
+    oteam = gameInfo["Tm"]
     date = gameInfo["Date"]
     home = gameInfo["HomeGame"]
     if home == 0:
@@ -282,6 +283,11 @@ def PlayByPlay (gameInfo):
         else:
             pteam.append(pteams[0])
     dat["Pteam"] = pteam
+    if gameInfo["R"] > gameInfo["RA"]:
+        winner = oteam
+    else:
+        winner = gameInfo["Opp"]
+    dat["Winner"] = winner
     return(dat)
 
 
@@ -289,37 +295,16 @@ def PlayByPlay (gameInfo):
 ## Output is the name of the .csv file you want to save.  I force a
 ## file to be saved here because the function takes a while to run.
 def pullPlaybyPlay (team, year, output):
-    oteam = team
-    teamNames = {"KCR":"KCA",
-                 "CHW":"CHA",
-                 "CHC":"CHN",
-                 "LAD":"LAN",
-                 "NYM":"NYN",
-                 "NYY":"NYA",
-                 "SDP":"SDN",
-                 "SFG":"SFN",
-                 "STL":"SLN",
-                 "TBR":"TBA",
-                 "WSN":"WAS",
-                 "LAA":"ANA"}
     dat = pullGameData(team, year)
-    if team in teamNames:
-        team = teamNames[team]
     DatDict = dict()
     for r in range(len(dat)):
         inputs = dat.loc[r]
-        hteam = inputs["Tm"]
-        ateam = inputs["Opp"]
-        if hteam in teamNames:
-            inputs["Tm"] = teamNames[hteam]
-        if ateam in teamNames:
-            inputs["Opp"] = teamNames[ateam]
         try:
             DatDict[r] = PlayByPlay(inputs)            
         except IndexError:
             pass
     bdat = pandas.concat(DatDict)
-    bdat["Hteam"] = oteam
+    bdat["Hteam"] = team
     names = []
     for i in bdat["Batter"]:
         if len(i) > 0:
@@ -342,7 +327,7 @@ def pullPlaybyPlay (team, year, output):
     bdat["interference"] = bdat["Play Description"].str.contains("Reached on Interference")
     bdat["sacrifice"] = bdat["Play Description"].str.contains("Sacrifice")
     bdat["ab"] = (bdat["walk"] == False) & (bdat["sacrifice"] == False) & (bdat["interference"] == False) & (bdat["stolenB"] == False) & (bdat["wild"] == False) & (bdat["hbp"] == False) & (bdat["pick"] == False) & (bdat["balk"] == False)
-    bdat["hit"] =  (bdat["walk"] == False) & (bdat["out"] == False) & (bdat["stolenB"] == False) & (bdat["error"] == False) & (bdat["ab"] == True)
+    bdat["hit"] =  (bdat["walk"] == False) & (bdat["out"] == False) & (bdat["stolenB"] == False) & (bdat["error"] == False) & (bdat["ab"] == True)  
     bdat.to_csv(output)
     return(bdat)
 
