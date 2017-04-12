@@ -2,7 +2,7 @@
 
 Ben Kite
 
-2017-03-09
+2017-04-11
 
 This directory contains baseballReferenceScrape.py which pulls data
 from baseball-reference.com. There are also numerous other scripts
@@ -22,6 +22,7 @@ The scripts are dependent on the following packages:
 - sklearn
 - scipy
 - statsmodels
+- pylab
 
 If you are new to Python, I recommend installing the Anaconda distribution:
 - https://www.continuum.io/downloads
@@ -62,3 +63,8 @@ battingOverTime.py:
 Uses the box score data to create plots to show how players batting
 ability changes over the course of the season. This now runs from the
 command line.
+
+WPA.py:
+Uses play-by-play data to examine wWPA across all batters in the
+season specified in the script. Generates tables in .png files
+summarizing the top and bottom 30 players in MLB.
