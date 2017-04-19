@@ -15,20 +15,25 @@ def wpaer (batter, bdat):
     bdat["Batter"] = duck
     dat = bdat.loc[bdat["Batter"]== batter]
     dat = dat.reset_index()
-    wwpa = dat["wWPA"]
-    vals = []
-    for w in wwpa:
-        tmp = w.split("%")[0]
-        vals.append(tmp)
-    vals = pandas.to_numeric(vals)
+    #wwpa = dat["wWPA"]
+    #vals = []
+    #for w in wwpa:
+    #    tmp = w.split("%")[0]
+    #    vals.append(tmp)
+    #vals = pandas.to_numeric(vals)
     winprob = []
+    vals = []
     for rown in range(0, len(dat)):
         row = dat.loc[rown]
-        if row["@Bat"] == row["Winner"]:
-            winprob.append(1)
-        else: 
-            winprob.append(-1)
-    winprob
+        if row["wWPA"] == row["wWPA"]:
+            if row["@Bat"] == row["Winner"]:
+                winprob.append(1)
+            else: 
+                winprob.append(-1)
+            w = row["wWPA"]
+            tmp = w.split("%")[0]
+            vals.append(tmp)
+    vals = pandas.to_numeric(vals)
     vals = vals * winprob
     return(vals)
 
@@ -48,7 +53,8 @@ for t in teams:
         teamdat[t] = pandas.read_csv(filen)
         teamdat[t]["batteam"] = t
     else:
-        teamdat[t] = ds.pullPlaybyPlay(t, year, filen)
+        ds.pullPlaybyPlay(t, year, filen)
+        teamdat[t] = pandas.read_csv(filen)
         teamdat[t]["batteam"] = t
     
 tdat = pandas.concat(teamdat)
@@ -64,18 +70,18 @@ for t in teams:
     for a in tbatters:
         a = a.replace("\xa0", "_")
         aa = wpaer(a, teamdat)
-        out[a] = pandas.DataFrame({"Name": a, "Team": t, "Sum_wWPA": numpy.sum(aa)/100}, index = [a])
+        out[a] = pandas.DataFrame({"Name": a, "Team": t, "Plate Appearances": len(aa), "Cumulative wWPA": numpy.sum(aa)/100}, index = [a])
     bb = pandas.concat(out)
     teamBatting[t] = bb.reset_index(drop = True)
 
 output = pandas.concat(teamBatting)  
 
-output = output.sort("Sum_wWPA", ascending = False)
+output = output.sort("Cumulative wWPA", ascending = False)
 
 output = output.reset_index(drop = True)
 output["Rank"] = output.index + 1
 
-output = output[["Rank", "Name", "Team", "Sum_wWPA"]]
+output = output[["Rank", "Name", "Team", "Plate Appearances", "Cumulative wWPA"]]
 cleannames = []
 for n in output["Name"]:
     cleannames.append(re.sub("_", " ", n))
@@ -111,6 +117,5 @@ savefig("topWWPA.png", bbox_inches= 'tight')
 
 render_mpl_table(output.loc[len(output) - 30:], header_columns=0, col_width=3.2)
 savefig("bottomWWPA.png", bbox_inches= 'tight')
-
 
 
