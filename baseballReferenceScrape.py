@@ -5,14 +5,14 @@ import requests, bs4
 import re, os
 
 ## This is the best place to get started.
-## This function simply takes a url and provides the ids 
+## This function simply takes a url and provides the ids
 ## from the html tables that the code provided here can access.
-## Using findTables is great for determining options for the 
+## Using findTables is great for determining options for the
 ## pullTable function for the tableID argument.
 def findTables(url):
     res = requests.get(url)
     ## The next two lines get around the issue with comments breaking the parsing.
-    comm = re.compile("<!--|-->")    
+    comm = re.compile("<!--|-->")
     soup = bs4.BeautifulSoup(comm.sub("", res.text), 'lxml')
     divs = soup.findAll('div', id = "content")
     divs = divs[0].findAll("div", id=re.compile("^all"))
@@ -34,11 +34,11 @@ def findTables(url):
 def pullTable(url, tableID):
     res = requests.get(url)
     ## Work around comments
-    comm = re.compile("<!--|-->")    
+    comm = re.compile("<!--|-->")
     soup = bs4.BeautifulSoup(comm.sub("", res.text), 'lxml')
     tables = soup.findAll('table', id = tableID)
     data_rows = tables[0].findAll('tr')
-    data_header = tables[0].findAll('thead')   
+    data_header = tables[0].findAll('thead')
     data_header = data_header[0].findAll("tr")
     data_header = data_header[0].findAll("th")
     game_data = [[td.getText() for td in data_rows[i].findAll(['th','td'])]
@@ -52,7 +52,7 @@ def pullTable(url, tableID):
     data = data.loc[data[header[0]] != header[0]]
     data = data.reset_index(drop = True)
     return(data)
-## For example:   
+## For example:
 ## url = "http://www.baseball-reference.com/teams/KCR/2016.shtml"
 ## pullTable(url, "team_batting")
 
@@ -76,7 +76,7 @@ def pullGameData (team, year):
         mapping = {"Mar": "03", "Apr": "04", "May": "05", "Jun": "06", "Jul": "07", "Aug": "08",
                    "Sep": "09", "Oct": "10", "Nov":"11"}
         m = mapping[month]
-        ndates.append(str(year) + m + day)    
+        ndates.append(str(year) + m + day)
     uni, counts = numpy.unique(ndates, return_counts = True)
     ndates = []
     for t in range(len(counts)):
@@ -87,8 +87,8 @@ def pullGameData (team, year):
         else:
             for i in range(int(cx)):
                 ii = i + 1
-                ndates.append(ux + str(ii))     
-    dat["Date"] = ndates  
+                ndates.append(ux + str(ii))
+    dat["Date"] = ndates
     dat.rename(columns = {dat.columns[4] : "Location"}, inplace = True)
     homegame = []
     for g in dat["Location"]:
@@ -138,7 +138,7 @@ def Quantify (x):
             out.append(float(i))
     return(out)
 
-  
+
 ## Pulls box score data from a game provided in the gameInfo input
 ## This is meant to be run by the pullBoxScores function below.
 def gameFinder (gameInfo):
@@ -164,7 +164,7 @@ def gameFinder (gameInfo):
                     "CLE":"ClevelandIndiansbatting",
                     "COL":"ColoradoRockiesbatting",
                     "DET":"DetroitTigersbatting",
-                    "KCR":"KansasCityRoyalsbatting", 
+                    "KCR":"KansasCityRoyalsbatting",
                     "HOU":"HoustonAstrosbatting",
                     "LAA":"AnaheimAngelsbatting",
                     "LAD":"LosAngelesDodgersbatting",
@@ -176,14 +176,14 @@ def gameFinder (gameInfo):
                     "OAK":"OaklandAthleticsbatting",
                     "PHI":"PhiladelphiaPhilliesbatting",
                     "PIT":"PittsburghPiratesbatting",
-                    "SDP":"SanDiegoPadresbatting", 
-                    "SEA":"SeattleMarinersbatting", 
+                    "SDP":"SanDiegoPadresbatting",
+                    "SEA":"SeattleMarinersbatting",
                     "SFG":"SanFranciscoGiantsbatting",
-                    "STL":"StLouisCardinalsbatting", 
-                    "TBR":"TampaBayRaysbatting", 
-                    "TEX":"TexasRangersbatting", 
-                    "TOR":"TorontoBlueJaysbatting", 
-                    "WSN":"WashingtonNationalsbatting"} 
+                    "STL":"StLouisCardinalsbatting",
+                    "TBR":"TampaBayRaysbatting",
+                    "TEX":"TexasRangersbatting",
+                    "TOR":"TorontoBlueJaysbatting",
+                    "WSN":"WashingtonNationalsbatting"}
     date = gameInfo["Date"]
     home = gameInfo["HomeGame"]
     if home == False:
@@ -213,7 +213,7 @@ def gameFinder (gameInfo):
     for d in data:
         if d not in ["Batting", "Name", "Details", "Date", "HomeGame"]:
             tmp = Quantify(data[d])
-            data[d] = tmp 
+            data[d] = tmp
     data = data[data["AB"] > 0]
     return(data)
 
@@ -223,7 +223,7 @@ def gameFinder (gameInfo):
 ## If overwrite is True, an existing file with the same name will be overwritten.
 def pullBoxscores (team, year, directory, overwrite = True):
     if not os.path.exists(directory):
-        os.makedirs(directory)       
+        os.makedirs(directory)
     if overwrite == False:
         if os.path.exists(directory + team + ".csv"):
             return("This already exists!")
@@ -232,15 +232,15 @@ def pullBoxscores (team, year, directory, overwrite = True):
     for r in range(len(dat)):
         inputs = dat.loc[r]
         try:
-            DatDict[r] = gameFinder(inputs)            
+            DatDict[r] = gameFinder(inputs)
         except IndexError:
             pass
-    playerGameData = pandas.concat(DatDict) 
+    playerGameData = pandas.concat(DatDict)
     playerGameData.reset_index(inplace = True)
     playerGameData = playerGameData.rename(columns = {"level_0": "Game", "level_1": "BatPos"})
     playerGameData.to_csv(directory + team + "_" + str(year) + ".csv")
 
-        
+
 ## This is an internal function to pullPlaybyPlay
 def PlayByPlay (gameInfo):
     teamNames = {"KCR":"KCA",
@@ -300,7 +300,7 @@ def pullPlaybyPlay (team, year, output):
     for r in range(len(dat)):
         inputs = dat.loc[r]
         try:
-            DatDict[r] = PlayByPlay(inputs)            
+            DatDict[r] = PlayByPlay(inputs)
         except IndexError:
             pass
     bdat = pandas.concat(DatDict)
@@ -316,7 +316,7 @@ def pullPlaybyPlay (team, year, output):
     bdat["BatterName"] = names
     ## These rules attempt to sort out different play outcomes by
     ## searching the text in the "Play Description" variable.
-    bdat["out"] = (bdat["Play Description"].str.contains("out")) | (bdat["Play Description"].str.contains("Play")) | (bdat["Play Description"].str.contains("Flyball")) | (bdat["Play Description"].str.contains("Popfly")) 
+    bdat["out"] = (bdat["Play Description"].str.contains("out")) | (bdat["Play Description"].str.contains("Play")) | (bdat["Play Description"].str.contains("Flyball")) | (bdat["Play Description"].str.contains("Popfly"))
     bdat["hbp"] = bdat["Play Description"].str.startswith("Hit")
     bdat["walk"] = (bdat["Play Description"].str.contains("Walk"))
     bdat["stolenB"] = bdat["Play Description"].str.contains("Steal")
@@ -327,7 +327,7 @@ def pullPlaybyPlay (team, year, output):
     bdat["interference"] = bdat["Play Description"].str.contains("Reached on Interference")
     bdat["sacrifice"] = bdat["Play Description"].str.contains("Sacrifice")
     bdat["ab"] = (bdat["walk"] == False) & (bdat["sacrifice"] == False) & (bdat["interference"] == False) & (bdat["stolenB"] == False) & (bdat["wild"] == False) & (bdat["hbp"] == False) & (bdat["pick"] == False) & (bdat["balk"] == False)
-    bdat["hit"] =  (bdat["walk"] == False) & (bdat["out"] == False) & (bdat["stolenB"] == False) & (bdat["error"] == False) & (bdat["ab"] == True)  
+    bdat["hit"] =  (bdat["walk"] == False) & (bdat["out"] == False) & (bdat["stolenB"] == False) & (bdat["error"] == False) & (bdat["ab"] == True)
     bdat.to_csv(output)
     return(bdat)
 
@@ -344,7 +344,7 @@ def pullPitcherData (team, year):
     data = data.reset_index(drop = True)
     data["Team"] = team
     data["Year"] = year
-    data["LeftHanded"] = data["Name"].str.endswith("*")  
+    data["LeftHanded"] = data["Name"].str.contains("\\*")
     names = data.columns
     for c in range(0, len(names)):
         replacement = []
@@ -359,4 +359,13 @@ def pullPitcherData (team, year):
             data[k] = replacement
     data = data[["Name", "LeftHanded", "Team", "Year"]]
     return(data)
+
+datdict = dict()
+for t in teams:
+    datdict[t] = pullPitcherData(t, 2017)
+    
+pdat = pandas.concat(datdict)
+pdat.to_csv("handedness.csv")
+    
+
     
