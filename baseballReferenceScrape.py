@@ -360,12 +360,5 @@ def pullPitcherData (team, year):
     data = data[["Name", "LeftHanded", "Team", "Year"]]
     return(data)
 
-datdict = dict()
-for t in teams:
-    datdict[t] = pullPitcherData(t, 2017)
-    
-pdat = pandas.concat(datdict)
-pdat.to_csv("handedness.csv")
-    
 
     
