@@ -43,19 +43,19 @@ def YearData(year, directory):
 
     gameData = pandas.concat(dataBase)
 
-    gameData.rename(columns = {"Team" :"HomeTeam", 
+    gameData.rename(columns = {"Tm" :"HomeTeam", 
                                "Opp":"AwayTeam", 
                                "Record":"HomeRecord",
-                               "Runs":"RunsHome", 
-                               "OppRuns":"RunsAway",  
-                               "WL":"HomeWL",  
+                               "Runs":"R", 
+                               "OppRuns":"RA",  
+                               "W-L":"HomeWL",  
                                "Streak":"HomeStreak"}, inplace = True)
    
     gameData = gameData.sort_values(["Date"])
 
-    gameData = gameData.drop("gamenum", axis = 1)
-    gameData = gameData.drop("gamenum2", axis = 1)
-    gameData = gameData.drop("boxscore", axis = 1)
+    #gameData = gameData.drop("gamenum", axis = 1)
+    #gameData = gameData.drop("gamenum2", axis = 1)
+    #gameData = gameData.drop("boxscore", axis = 1)
 
     homeData = gameData[gameData["Location"] != "@"]
 
