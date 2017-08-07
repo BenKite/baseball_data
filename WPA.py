@@ -112,10 +112,10 @@ def render_mpl_table(data, col_width=3.0, row_height=0.625, font_size=14,
             cell.set_facecolor(row_colors[k[0]%len(row_colors) ])
     return ax
     
-render_mpl_table(output.loc[0:29], header_columns=0, col_width=3.2)
+render_mpl_table(output.loc[0:14], header_columns=0, col_width=3.2)
 savefig("topWWPA.png", bbox_inches= 'tight')
 
-render_mpl_table(output.loc[len(output) - 30:], header_columns=0, col_width=3.2)
+render_mpl_table(output.loc[len(output) - 15:], header_columns=0, col_width=3.2)
 savefig("bottomWWPA.png", bbox_inches= 'tight')
 
 
