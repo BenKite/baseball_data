@@ -294,8 +294,16 @@ def PlayByPlay (gameInfo):
 ## Pulls all of the play by play tables for a team for a given year.
 ## Output is the name of the .csv file you want to save.  I force a
 ## file to be saved here because the function takes a while to run.
-def pullPlaybyPlay (team, year, output):
+def pullPlaybyPlay (team, year, output, check = True):
     dat = pullGameData(team, year)
+    if check:
+        olddat = pandas.read_csv(output)
+        dates = numpy.unique(olddat.Date)
+        mostrecent = numpy.max(dates)
+        dat.Date = dat.Date.astype("int")
+        dat = dat.loc[dat.Date > mostrecent]
+        dat.reset_index(inplace = True)
+        dat = dat.loc[dat.Time == dat.Time]
     DatDict = dict()
     for r in range(len(dat)):
         inputs = dat.loc[r]
@@ -303,6 +311,8 @@ def pullPlaybyPlay (team, year, output):
             DatDict[r] = PlayByPlay(inputs)
         except IndexError:
             pass
+    if len(DatDict) == 0:
+        return("No new games to be added!")
     bdat = pandas.concat(DatDict)
     bdat["Hteam"] = team
     names = []
@@ -328,6 +338,10 @@ def pullPlaybyPlay (team, year, output):
     bdat["sacrifice"] = bdat["Play Description"].str.contains("Sacrifice")
     bdat["ab"] = (bdat["walk"] == False) & (bdat["sacrifice"] == False) & (bdat["interference"] == False) & (bdat["stolenB"] == False) & (bdat["wild"] == False) & (bdat["hbp"] == False) & (bdat["pick"] == False) & (bdat["balk"] == False)
     bdat["hit"] =  (bdat["walk"] == False) & (bdat["out"] == False) & (bdat["stolenB"] == False) & (bdat["error"] == False) & (bdat["ab"] == True)
+    if check:
+        if len(olddat) > 0:
+            bdat = olddat.append(bdat)
+            bdat.reset_index(inplace = True)
     bdat.to_csv(output)
     return(bdat)
 

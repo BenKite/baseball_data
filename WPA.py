@@ -14,7 +14,7 @@ def wpaer (batter, bdat):
         duck.append(duckinga.replace("\xa0", "_"))
     bdat["Batter"] = duck
     dat = bdat.loc[bdat["Batter"]== batter]
-    dat = dat.reset_index()
+    dat.reset_index(inplace = True, drop = True)
     #wwpa = dat["wWPA"]
     #vals = []
     #for w in wwpa:
@@ -45,17 +45,19 @@ teams = ['ATL', 'ARI', 'BAL', 'BOS', 'CHC', 'CHW', 'CIN', 'CLE', 'COL', 'DET',
 
 year = 2017
 
-## This takes a while to run the first time.
+## This takes a while to run the first time, but in September of '17 I
+## made changes that allow data files to be updated, rather than
+## deleting them and starting over each time.
 teamdat = dict()
 for t in teams:
     filen = t + "_pbp_" + str(year) + ".csv"
-    if os.path.isfile(filen):
-        teamdat[t] = pandas.read_csv(filen)
-        teamdat[t]["batteam"] = t
-    else:
-        ds.pullPlaybyPlay(t, year, filen)
-        teamdat[t] = pandas.read_csv(filen)
-        teamdat[t]["batteam"] = t
+    #if os.path.isfile(filen):
+    #    teamdat[t] = pandas.read_csv(filen)
+    #    teamdat[t]["batteam"] = t
+    #else:
+    ds.pullPlaybyPlay(t, year, filen)
+    teamdat[t] = pandas.read_csv(filen)
+    teamdat[t]["batteam"] = t
     
 tdat = pandas.concat(teamdat)
 tdat = tdat.reset_index()
