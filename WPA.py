@@ -60,7 +60,7 @@ for t in teams:
     teamdat[t]["batteam"] = t
     
 tdat = pandas.concat(teamdat)
-tdat = tdat.reset_index()
+tdat.reset_index(inplace = True, drop = True)
 
 abatters = numpy.unique(tdat["Batter"])
 
