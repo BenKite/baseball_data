@@ -294,8 +294,9 @@ def PlayByPlay (gameInfo):
 ## Pulls all of the play by play tables for a team for a given year.
 ## Output is the name of the .csv file you want to save.  I force a
 ## file to be saved here because the function takes a while to run.
-def pullPlaybyPlay (team, year, output, check = True):
+def pullPlaybyPlay (team, year, output, check = False):
     dat = pullGameData(team, year)
+    dat = dat[dat.Time == dat.Time] ## Only pull games that have ended
     if check:
         olddat = pandas.read_csv(output)
         dates = numpy.unique(olddat.Date)
@@ -341,7 +342,7 @@ def pullPlaybyPlay (team, year, output, check = True):
     if check:
         if len(olddat) > 0:
             bdat = olddat.append(bdat)
-            bdat.reset_index(inplace = True)
+            bdat.reset_index(inplace = True, drop = True)
     bdat.to_csv(output)
     return(bdat)
 

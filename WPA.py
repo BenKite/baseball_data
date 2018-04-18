@@ -43,7 +43,7 @@ teams = ['ATL', 'ARI', 'BAL', 'BOS', 'CHC', 'CHW', 'CIN', 'CLE', 'COL', 'DET',
          'KCR', 'HOU', 'LAA', 'LAD', 'MIA', 'MIL', 'MIN', 'NYM', 'NYY', 'OAK', 
          'PHI', 'PIT', 'SDP', 'SEA', 'SFG', 'STL', 'TBR', 'TEX', 'TOR', 'WSN']
 
-year = 2017
+year = 2018
 
 ## This takes a while to run the first time, but in September of '17 I
 ## made changes that allow data files to be updated, rather than
@@ -51,13 +51,14 @@ year = 2017
 teamdat = dict()
 for t in teams:
     filen = t + "_pbp_" + str(year) + ".csv"
-    #if os.path.isfile(filen):
-    #    teamdat[t] = pandas.read_csv(filen)
-    #    teamdat[t]["batteam"] = t
-    #else:
-    ds.pullPlaybyPlay(t, year, filen)
+    if os.path.isfile(filen):
+        teamdat[t] = pandas.read_csv(filen)
+        teamdat[t]["batteam"] = t
+    else:
+        ds.pullPlaybyPlay(t, year, filen, check = False)
     teamdat[t] = pandas.read_csv(filen)
     teamdat[t]["batteam"] = t
+
     
 tdat = pandas.concat(teamdat)
 tdat.reset_index(inplace = True, drop = True)
